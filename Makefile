@@ -5,7 +5,7 @@
 CC := clang
 CFLAGS := -g -ggdb -O2 -Wall
 PROGRAM := basic2d
-INC := -I. -Iglad/include
+INC := -I. -Iglad/include -Istb
 LIB := -lX11 -lGLX -lm
 OBJ := main.o glad/src/glad.o
 
