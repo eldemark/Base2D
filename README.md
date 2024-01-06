@@ -1,6 +1,6 @@
 Base2D
 
-Add subdirectory with glad containing:
+Add subdirectory 'glad' containing:
   glad.c
   glad.h
   khrplatform.h
