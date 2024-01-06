@@ -10,6 +10,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+
 char* load_shader(const char* file_name)
 {
     FILE* file = fopen(file_name, "r");
@@ -123,7 +127,34 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    // Set up vertex data and buffers
+    // Load texture.
+
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load("texture/texture.png", &width, &height, &nrChannels, 0);
+
+    if (!data) {
+        printf("Failed to load texture\n");
+        exit(1);
+    }
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+
+    // End load texture.
+
+    // Set up tile and texture.
+
     float vertices[] = {
         -0.5f, -0.5f, 0.0f, // bottom left
         0.5f, -0.5f, 0.0f,  // bottom right
@@ -145,6 +176,8 @@ int main()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    // End set up tile and texture.
 
     while (1) {
         XNextEvent(dpy, &xev);
