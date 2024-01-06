@@ -54,8 +54,8 @@ int main()
     XWindowAttributes gwa;
     XEvent xev;
 
-    const char* vertexShaderSource = load_shader("shaders/vertex.glsl");
-    const char* fragmentShaderSource = load_shader("shaders/fragment.glsl");
+    const char* vert_src = load_shader("shaders/vertex.glsl");
+    const char* frag_src = load_shader("shaders/fragment.glsl");
 
     dpy = XOpenDisplay(NULL);
 
@@ -105,12 +105,12 @@ int main()
 
     // Vertex Shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glShaderSource(vertexShader, 1, &vert_src, NULL);
     glCompileShader(vertexShader);
 
     // Fragment Shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glShaderSource(fragmentShader, 1, &frag_src, NULL);
     glCompileShader(fragmentShader);
 
     // Shader Program
@@ -169,5 +169,9 @@ int main()
             exit(0);
         }
     }
+
+    free((char*)vert_src);
+    free((char*)frag_src);
+
     return 0;
 }
