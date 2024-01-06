@@ -1,13 +1,13 @@
 #
-# Makefile for OpenGL 2D
+# Makefile for Base2D
 #
 
 CC := clang
-CFLAGS := -g -ggdb -O2 -Wall -fPIC
+CFLAGS := -g -ggdb -O2 -Wall
 PROGRAM := basic2d
-INC := -I. -Iglad
+INC := -I. -Iglad/include
 LIB := -lX11 -lGLX
-OBJ := main.o glad/glad.o
+OBJ := main.o glad/src/glad.o
 
 .SUFFIXES:
 .SUFFIXES: .o .c .h

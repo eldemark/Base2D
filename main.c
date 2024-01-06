@@ -7,21 +7,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Vertex Shader source
-const char* vertexShaderSource = "#version 460 core\n"
-                                 "layout (location = 0) in vec3 aPos;\n"
-                                 "void main()\n"
-                                 "{\n"
-                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                 "}\0";
+#include <stdio.h>
+#include <stdlib.h>
 
-// Fragment Shader source
-const char* fragmentShaderSource = "#version 460 core\n"
-                                   "out vec4 FragColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "   FragColor = vec4(1.0, 0.5, 0.2, 1.0);\n"
-                                   "}\n\0";
+char* load_shader(const char* file_name)
+{
+    FILE* file = fopen(file_name, "r");
+    char* buffer;
+    size_t file_size;
+
+    if (file == NULL) {
+        perror("Error opening file");
+        return NULL;
+    }
+
+    // Get file size using file pointer.
+    fseek(file, 0, SEEK_END);
+    file_size = ftell(file);
+    rewind(file);
+
+    // Allocate memory for file plus null terminator.
+    buffer = (char*)malloc(file_size + 1);
+    if (buffer == NULL) {
+        perror("Error allocating memory");
+        fclose(file);
+        return NULL;
+    }
+
+    // Read the file into the buffer
+    fread(buffer, 1, file_size, file);
+    buffer[file_size] = '\0';
+    fclose(file);
+    return buffer;
+}
 
 int main()
 {
@@ -35,6 +53,9 @@ int main()
     GLXContext glc;
     XWindowAttributes gwa;
     XEvent xev;
+
+    const char* vertexShaderSource = load_shader("shaders/vertex.glsl");
+    const char* fragmentShaderSource = load_shader("shaders/fragment.glsl");
 
     dpy = XOpenDisplay(NULL);
 
