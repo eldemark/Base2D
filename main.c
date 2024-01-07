@@ -58,9 +58,6 @@ int main()
     XWindowAttributes gwa;
     XEvent xev;
 
-    const char* vert_src = load_shader("shaders/vertex.glsl");
-    const char* frag_src = load_shader("shaders/fragment.glsl");
-
     dpy = XOpenDisplay(NULL);
 
     if (dpy == NULL) {
@@ -107,6 +104,11 @@ int main()
         return -1;
     }
 
+    // Create shader program.
+
+    const char* vert_src = load_shader("shaders/vert.glsl");
+    const char* frag_src = load_shader("shaders/frag.glsl");
+
     // Vertex Shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vert_src, NULL);
@@ -127,6 +129,12 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    free((char*)vert_src);
+    free((char*)frag_src);
+
+    // End create shader program.
+
+
     // Load texture.
 
     int width, height, nrChannels;
@@ -146,7 +154,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(data);
@@ -156,10 +164,10 @@ int main()
     // Set up tile and texture.
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.5f, -0.5f, 0.0f,  // bottom right
-        0.5f, 0.5f, 0.0f,   // top right
-        -0.5f, 0.5f, 0.0f   // top left
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+         0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
+        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, // top left
     };
 
     GLuint VBO, VAO;
@@ -171,13 +179,18 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     // End set up tile and texture.
+
+    // Main loop
 
     while (1) {
         XNextEvent(dpy, &xev);
@@ -187,6 +200,8 @@ int main()
             glViewport(0, 0, gwa.width, gwa.height);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glClearColor(0.0, 0.0, 0.0, 1.0);
+
+            glBindTexture(GL_TEXTURE_2D, texture); // position?
 
             glUseProgram(shaderProgram);
             glBindVertexArray(VAO);
@@ -202,9 +217,6 @@ int main()
             exit(0);
         }
     }
-
-    free((char*)vert_src);
-    free((char*)frag_src);
 
     return 0;
 }
